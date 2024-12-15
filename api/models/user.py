@@ -63,7 +63,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_updated = models.DateTimeField(auto_now=True)
     is_staff = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
-    is_verified = models.BooleanField(default=True)
     
 
     objects = UserManager()
