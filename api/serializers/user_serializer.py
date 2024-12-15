@@ -6,6 +6,7 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 
 
+
 class UserSerializer(serializers.ModelSerializer):
 
     """Serializer for User model."""
@@ -48,3 +49,71 @@ class UserSerializer(serializers.ModelSerializer):
 
 
         return super().update(instance, validated_data)
+
+
+class UpdateUserDetailsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = get_user_model()
+        fields = ('id', 'first_name', 'last_name', 'email', 'is_staff')
+    
+
+    def update(self, instance, validated_data):
+        return super().update(instance, validated_data)
+    
+
+class TokenVerificationSerializer(serializers.Serializer):
+
+    """Serializer for verifying the authentication tokens."""
+
+    token = serializers.CharField(trim_whitespace=True)
+
+
+    def validate_token(self, token_key):
+        try:
+            token = Token.objects.get(key=token_key) 
+
+            return token.user
+        except Token.DoesNotExist:
+            msg = _('Invalid token')
+            raise ValidationError(msg, code='invalid_token')   
+
+        
+
+
+class AuthTokenSerializer(serializers.Serializer):
+
+    """Serializer for creating authentication token."""
+
+    email = serializers.EmailField()
+    password = serializers.CharField(
+        style={'input_type': 'password'},
+        trim_whitespace=False,
+    )
+
+
+    def validate(self, attrs):
+        
+        email = attrs.get('email')
+        password = attrs.get('password')
+
+        user = authenticate(
+            request=self.context.get('request'),
+            username=email,
+            password=password
+        )
+
+
+        if not user:
+            msg = _('Validation Error, invalid credentials')
+            raise serializers.ValidationError(msg, code='authentication')
+
+
+        if not user.is_active:
+            msg = _('User is blocked, please contact the admin')
+            raise ValidationError(msg, code='not_active')
+
+        attrs['user'] = user
+
+        return attrs
+        
