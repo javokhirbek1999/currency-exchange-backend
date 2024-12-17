@@ -52,14 +52,50 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UpdateUserDetailsSerializer(serializers.ModelSerializer):
+    """Serializer for updating user details and password."""
+    
+    current_password = serializers.CharField(
+        max_length=128, write_only=True, required=False, style={'input_type': 'password'}
+    )
+    new_password = serializers.CharField(
+        max_length=128, write_only=True, required=False, style={'input_type': 'password'}
+    )
 
     class Meta:
         model = get_user_model()
-        fields = ('id', 'first_name', 'last_name', 'email', 'is_staff')
-    
+        fields = ('id', 'first_name', 'last_name', 'email', 'is_staff', 'current_password', 'new_password')
+        extra_kwargs = {
+            'is_staff': {'read_only': True},
+        }
+
+    def validate(self, attrs):
+        # If a password change is requested, validate current password
+        current_password = attrs.get('current_password')
+        new_password = attrs.get('new_password')
+
+        if current_password and new_password:
+            user = self.instance
+            if not user.check_password(current_password):
+                raise serializers.ValidationError({'current_password': 'Current password is incorrect.'})
+
+            if current_password == new_password:
+                raise serializers.ValidationError({'new_password': 'New password cannot be the same as the current password.'})
+        
+        return attrs
 
     def update(self, instance, validated_data):
-        return super().update(instance, validated_data)
+        # Handle password update if provided
+        current_password = validated_data.pop('current_password', None)
+        new_password = validated_data.pop('new_password', None)
+
+        if current_password and new_password:
+            instance.set_password(new_password)
+
+        # Update other fields
+        instance = super().update(instance, validated_data)
+        instance.save()
+        return instance
+
     
 
 class TokenVerificationSerializer(serializers.Serializer):

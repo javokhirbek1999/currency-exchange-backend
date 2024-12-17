@@ -56,14 +56,15 @@ class RetrieveUserAPIView(generics.RetrieveDestroyAPIView):
     
 
 class UpdateUserAPIView(generics.RetrieveUpdateAPIView):
-
-    """API View for retrieving and updating the user details."""
-
+    
+    """API View for retrieving and updating the user details, including password."""
+    
     permission_classes = (user_permissions.IsOwner,)
     serializer_class = user_serializer.UpdateUserDetailsSerializer
 
     def get_object(self):
         return get_user_model().objects.get(email=self.kwargs.get('email'))
+
     
 
 class VerifyToken(views.APIView):

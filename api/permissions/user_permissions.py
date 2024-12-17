@@ -25,5 +25,9 @@ class IsOwner(BasePermission):
 
     """Permission to Allow if the object belongs to the current user."""
 
+    def has_permission(self, request, view):
+        # Allow access to the view
+        return request.user and request.user.is_authenticated
+
     def has_object_permission(self, request, view, obj):
         return obj.id == request.user.id
