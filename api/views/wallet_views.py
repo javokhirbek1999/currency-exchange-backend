@@ -8,9 +8,10 @@ from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
 from api.models.wallet import Wallet
+from api.models.transaction import Transaction
+
 from api.serializers.wallet_serializer import WalletSerializer, WalletDepositWithdrawSerializer, WalletTransferSerializer
 from api.permissions.wallet_permissions import IsOwnerOrReadOnly
-
 
 class WalletListView(generics.ListCreateAPIView):
     """
@@ -87,11 +88,27 @@ class WalletDepositView(generics.UpdateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        bank_account_address = serializer.validated_data.get('bank_account_address')
         amount = serializer.validated_data.get('amount')
         wallet.balance += amount 
         wallet.save()
 
-        return Response({"balance": wallet.balance, "currency": wallet.currency, "status": "success"}) 
+        Transaction.objects.create(
+            user=self.request.user,
+            source=bank_account_address,
+            destination=wallet.wallet_address,
+            transaction_type="DEPOSIT",
+            amount=amount,
+        )
+
+        return Response({
+            "status": "success",
+            "type": "deposit",
+            "bank_account": bank_account_address,
+            "amount": amount,
+            "wallet_balance": wallet.balance,
+            "wallet_currency": wallet.currency,
+        }) 
     
 
 class WalletWithdrawView(generics.UpdateAPIView):
@@ -124,6 +141,7 @@ class WalletWithdrawView(generics.UpdateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        bank_account_address = serializer.validated_data['bank_account_address']
         amount = serializer.validated_data.get('amount')
 
         # Check if withdrawal amount is greater than available balance
@@ -133,7 +151,22 @@ class WalletWithdrawView(generics.UpdateAPIView):
         wallet.balance -= amount 
         wallet.save()
 
-        return Response({"balance": wallet.balance, "currency": wallet.currency, "status": "success"}) 
+        Transaction.objects.create(
+            user=self.request.user,
+            source=bank_account_address,
+            destination=wallet.wallet_address,
+            transaction_type="WITHDRAWL",
+            amount=amount,
+        )
+
+        return Response({
+            "status": "success",
+            "type": "withdrawl",
+            "bank_account": bank_account_address,
+            "amount": amount,
+            "wallet_balance": wallet.balance,
+            "wallet_currency": wallet.currency,
+        }) 
     
 
 
@@ -203,6 +236,14 @@ class WalletTransferView(generics.GenericAPIView):
 
         destination_wallet.balance += converted_amount
         destination_wallet.save()
+
+        Transaction.objects.create(
+            user=self.request.user,
+            source=source_wallet.wallet_address,
+            destination=destination_wallet.wallet_address,
+            transaction_type="TRANSFER",
+            amount=amount,
+        )
 
         return Response({
             "status": "success",

@@ -1,4 +1,3 @@
-from typing import Any
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 import uuid
@@ -63,6 +62,14 @@ class Wallet(models.Model):
     balance = models.DecimalField(max_digits=15, decimal_places=2, default=0.0)
     currency = models.CharField(max_length=100, choices=CURRENCIES)
     wallet_address = models.CharField(max_length=40, unique=True, editable=False)
+
+    @property
+    def user_details(self):
+        return {
+            'first_name': self.user.first_name,
+            'last_name': self.user.last_name,
+            'email': self.user.email
+        }
 
     class Meta:
         # Ensure a user can have only one wallet per currency

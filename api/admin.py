@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from api.models.user import User
 from api.models.wallet import Wallet
+from api.models.transaction import Transaction
 
 
 
@@ -34,3 +35,6 @@ class UserAdminConfig(UserAdmin):
 @admin.register(Wallet)
 class WalletAdmin(admin.ModelAdmin):
     readonly_fields = ('wallet_address',)
+
+
+admin.site.register(Transaction)

@@ -16,6 +16,10 @@ class WalletDepositWithdrawSerializer(serializers.Serializer):
     
     """Serializer for depositing money into a wallet."""
     
+    bank_account_address = serializers.CharField(
+        max_length=255, 
+        required=True,
+    )
     amount = serializers.DecimalField(
         max_digits=15, 
         decimal_places=2, 
