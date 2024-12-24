@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework.authtoken',
+    'drf_yasg',
 
     'api',
 ]
@@ -121,6 +122,27 @@ REST_FRAMEWORK = {
 }
 
 
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,  # Disable session authentication
+    'SECURITY_DEFINITIONS': {
+        'Token': {
+            'type': 'apiKey',
+            'name': 'Authorization',  # The name of the header
+            'in': 'header',  # The header location for the API key
+            'description': 'Enter your token here: Token <your_token>',
+        },
+    },
+    'SECURITY': [
+        {'Token': []},  # Enable token authentication for all endpoints
+    ],
+}
+
+
+
+
+LOGIN_URL = '/admin/login/'  # Redirects to the Django admin login
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
@@ -137,6 +159,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

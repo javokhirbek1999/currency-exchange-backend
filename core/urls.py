@@ -15,11 +15,33 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, re_path,include
+from django.conf import settings
+from django.conf.urls.static import static
+
+
+from rest_framework import permissions
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Banking App with Currency Exchange API",
+      default_version='v1',
+      description="Backend API documentation for Banking App with Currency Exchange Mobile App.",
+      contact=openapi.Contact(email="khaydaraliev99@gmail.com"),
+      license=openapi.License(name="BSD License"),
+   ),
+   public=True,
+   permission_classes=(permissions.AllowAny,),
+)
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/users/', include('api.urls.user_urls')),
     path('api/wallets/', include('api.urls.wallet_urls')),
-    path('api/transactions/', include('api.urls.transactions_urls'))
-]
+    path('api/transactions/', include('api.urls.transactions_urls')),
+    path('', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

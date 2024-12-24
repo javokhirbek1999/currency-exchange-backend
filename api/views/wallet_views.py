@@ -183,12 +183,29 @@ class WalletTransferView(generics.GenericAPIView):
         Fetch exchange rates from the NBP API and calculate the rate for conversion.
         """
         try:
-            # Fetch source currency exchange rate
+            # If source currency is PLN, return 1 since it's already in PLN
+            if source_currency == 'PLN' and destination_currency == 'PLN':
+                return Decimal(1)
+
+            # If source currency is PLN, convert to destination currency rate
+            if source_currency == 'PLN':
+                response = requests.get(f'https://api.nbp.pl/api/exchangerates/rates/a/{destination_currency}/')
+                response.raise_for_status()
+                destination_rate = response.json().get('rates')[0].get('mid')
+                return Decimal(1) / Decimal(destination_rate)  # Invert since source is PLN
+
+            # If destination currency is PLN, convert source currency to PLN rate
+            if destination_currency == 'PLN':
+                response = requests.get(f'https://api.nbp.pl/api/exchangerates/rates/a/{source_currency}/')
+                response.raise_for_status()
+                source_rate = response.json().get('rates')[0].get('mid')
+                return Decimal(source_rate)  # Direct conversion to PLN
+
+            # Otherwise, fetch both source and destination rates for conversion
             source_response = requests.get(f'https://api.nbp.pl/api/exchangerates/rates/a/{source_currency}/')
             source_response.raise_for_status()
             source_rate = source_response.json().get('rates')[0].get('mid')
 
-            # Fetch destination currency exchange rate
             destination_response = requests.get(f'https://api.nbp.pl/api/exchangerates/rates/a/{destination_currency}/')
             destination_response.raise_for_status()
             destination_rate = destination_response.json().get('rates')[0].get('mid')
@@ -197,6 +214,7 @@ class WalletTransferView(generics.GenericAPIView):
             return Decimal(source_rate) / Decimal(destination_rate)
         except (requests.RequestException, KeyError, InvalidOperation) as e:
             raise ValidationError(f"Failed to fetch exchange rates: {str(e)}")
+
 
     def post(self, request, *args, **kwargs):
         """
