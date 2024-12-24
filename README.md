@@ -1,4 +1,4 @@
-# Banking App with Currency Exchange - [Network Communications in Mobile Appplcation Development (Semester 7)]
+# Banking App with Currency Exchange - [Network Communication in Mobile Appplcation Development (Semester 7)]
 
 ## Table of Contents
 1. [Overview](#overview)
