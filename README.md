@@ -3,15 +3,16 @@
 ## Table of Contents
 1. [Overview](#overview)
 2. [Tech Stack](#tech-stack)
-3. [Authentication](#authentication)
-4. [API Endpoints](#api-endpoints)
+3. [Running the App](#running-the-app)
+4. [Authentication](#authentication)
+5. [API Endpoints](#api-endpoints)
    - [User Endpoints](#user-endpoints)
    - [Transaction Endpoints](#transaction-endpoints)
    - [Wallet Endpoints](#wallet-endpoints)
-5. [Models](#models)
-6. [Currency Exchange](#currency-exchange)
-7. [Error Handling](#error-handling)
-8. [Conclusion](#conclusion)
+6. [Models](#models)
+7. [Currency Exchange](#currency-exchange)
+8. [Error Handling](#error-handling)
+9. [Conclusion](#conclusion)
 
 ---
 
@@ -54,13 +55,55 @@ In the documentation:
 ## Tech Stack
 
 The **Banking App with Currency Exchange** is developed using the following technologies:
-
+- **Python**: A high-level, general-purpose programming language.  
 - **Django**: A Python-based web framework for building backend systems.
 - **Django Rest Framework (DRF)**: A powerful toolkit for building RESTful APIs in Django.
 - **NBP API**: A Polish National Bank API providing exchange rate data.
 - **Swagger**: API documentation and testing interface.
 
 ---
+
+## Running the App
+
+1. Clone the repository:
+```bash
+git clone https://github.com/javokhirbek1999/currency-exchange-backend.git
+```
+
+2. Navigate to the cloned folder and create a virual environment:
+```bash
+py -m venv venv
+```
+
+The above command creates a virtual environment called venv
+
+3. Activate your virtual environment:
+```bash
+./venv/Script/activate #Powershell
+source ./venv/Scripts/activate #Linux-Unix
+```
+
+4. Install the dependencies
+```bash
+pip install -r requirements.txt
+```
+
+5. Run the server in your local API address so the Mobile App client can access it:
+```bash
+ipconfig # Reveals all of the IP address
+```
+![alt text](./ipconfig-instruction.png)
+
+Copy the Wireless IPv4 Address and then run the server in that IP address:
+```bash
+py manage.py runserver <wifi_ipv4_address>:8000
+```
+
+Once done, you will see the server running:
+![server-running](./running-server-demo.png)
+---
+
+And now, you also need to change your Mobile client API endpoint to this running server URL. The instructions are shown in the <a href="https://github.com/javokhirbek1999/currency-exchange-mobile-client" target="_blank">Mobile App Documentation</a>
 
 ## Authentication
 
